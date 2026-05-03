@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nora e Vaso - Upload Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #222; }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px; }
+    .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 18px; margin-bottom: 16px; }
+    h1 { margin: 0 0 8px; color: #042C53; }
+    h2 { margin: 0 0 12px; color: #042C53; font-size: 18px; }
+    label { display: block; font-weight: 700; margin: 12px 0 6px; font-size: 13px; }
+    input, select, textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    textarea { min-height: 80px; }
+    button { border: 0; border-radius: 5px; padding: 10px 14px; font-weight: 700; cursor: pointer; background: #185FA5; color: white; }
+    button.secondary { background: white; color: #185FA5; border: 1px solid #185FA5; }
+    button.danger { background: #c62828; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; }
+    .topic { text-align: left; background: white; color: #042C53; border: 1px solid #d6e6f5; }
+    .topic.active { background: #185FA5; color: white; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .status { margin-top: 12px; font-size: 13px; color: #555; }
+    .ok { color: #2e7d32; }
+    .err { color: #c62828; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 9px; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
+    th { color: #666; font-size: 11px; text-transform: uppercase; }
+    .pill { display: inline-block; padding: 3px 8px; background: #E6F1FB; color: #185FA5; border-radius: 4px; font-size: 11px; font-weight: 700; }
+    .ribbon { position: fixed; right: 12px; bottom: 12px; background: #042C53; color: white; padding: 8px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Upload Admin Nora e Vaso</h1>
+      <p>Base direta para enviar PDFs, aulas e materiais por árvore de ensino. Versão 2.3.</p>
+      <div id="sessionBox"></div>
+    </div>
+
+    <div class="card" id="loginCard">
+      <h2>Entrar como admin</h2>
+      <label>Email</label>
+      <input type="email" id="email" placeholder="seu@email.com">
+      <label>Senha</label>
+      <input type="password" id="password" placeholder="senha">
+      <div class="row" style="margin-top:12px;">
+        <button onclick="login()">Entrar</button>
+      </div>
+      <div class="status" id="loginStatus"></div>
+    </div>
+
+    <div id="adminArea" style="display:none;">
+      <div class="card">
+        <h2>1. Escolha a árvore de ensino</h2>
+        <div class="grid" id="topicButtons"></div>
+      </div>
+
+      <form class="card" id="uploadForm">
+        <h2>2. Enviar material em <span id="selectedTopicName">Neurológico</span></h2>
+        <label>Árvore</label>
+        <select id="topic"></select>
+        <label>Tipo</label>
+        <select id="type">
+          <option value="video">Aula gravada</option>
+          <option value="pdf">PDF</option>
+          <option value="slide">Slides</option>
+          <option value="audio">Áudio</option>
+          <option value="link">Material complementar</option>
+        </select>
+        <label>Título</label>
+        <input type="text" id="title" placeholder="Ex: Aula 01 - Choque séptico" required>
+        <label>Descrição</label>
+        <textarea id="description" placeholder="Resumo curto para o aluno"></textarea>
+        <label>Arquivo</label>
+        <input type="file" id="file" required>
+        <label><input type="checkbox" id="published" checked style="width:auto;"> Publicar imediatamente</label>
+        <div class="row" style="margin-top:12px;">
+          <button type="submit" id="sendBtn">Enviar material</button>
+          <button type="button" class="secondary" onclick="loadMaterials()">Atualizar lista</button>
+          <button type="button" class="danger" onclick="logout()">Sair</button>
+        </div>
+        <div class="status" id="uploadStatus"></div>
+      </form>
+
+      <div class="card">
+        <h2>Materiais cadastrados</h2>
+        <table>
+          <thead>
+            <tr><th>Título</th><th>Árvore</th><th>Tipo</th><th>Status</th><th>Arquivo</th></tr>
+          </thead>
+          <tbody id="materialsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="ribbon">UPLOAD ADMIN 2.3</div>
+
+  <script>
+    const SUPABASE_URL = 'https://aueniphfvgsweusjycyb.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1ZW5pcGhmdmdzd2V1c2p5Y3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3ODIxMjMsImV4cCI6MjA5MzM1ODEyM30.OAgMpcVk63gVjVXNEbQvR4tFns1mcqrTNEYXYilNpes';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const BUCKET = 'learning-content';
+    const topics = [
+      ['neurologico', 'Neurológico'],
+      ['hemodinamica', 'Hemodinâmica'],
+      ['respiratorio', 'Respiratório'],
+      ['abdominal', 'Abdominal'],
+      ['renal', 'Renal'],
+      ['profilaxias', 'Profilaxias'],
+      ['dispositivos', 'Dispositivos'],
+      ['procedimentos', 'Procedimentos'],
+      ['miscelanea', 'Miscelânea']
+    ];
+    let user = null;
+    let selectedTopic = 'neurologico';
+
+    function sanitize(name) {
+      return (name || 'arquivo').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]+/g, '-').toLowerCase();
+    }
+
+    function renderTopics() {
+      document.getElementById('topic').innerHTML = topics.map(([id, label]) => `<option value="${id}" ${id === selectedTopic ? 'selected' : ''}>${label}</option>`).join('');
+      document.getElementById('topicButtons').innerHTML = topics.map(([id, label]) => `<button type="button" class="topic ${id === selectedTopic ? 'active' : ''}" onclick="selectTopic('${id}')">${label}<br><small>Adicionar material aqui</small></button>`).join('');
+      document.getElementById('selectedTopicName').textContent = topics.find(t => t[0] === selectedTopic)?.[1] || selectedTopic;
+    }
+
+    function selectTopic(id) {
+      selectedTopic = id;
+      renderTopics();
+      document.getElementById('title').focus();
+      document.getElementById('uploadForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function login() {
+      const status = document.getElementById('loginStatus');
+      status.textContent = 'Entrando...';
+      const { data, error } = await db.auth.signInWithPassword({
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+      });
+      if (error) {
+        status.innerHTML = `<span class="err">${error.message}</span>`;
+        return;
+      }
+      user = data.user;
+      await showAdmin();
+    }
+
+    async function showAdmin() {
+      document.getElementById('loginCard').style.display = 'none';
+      document.getElementById('adminArea').style.display = 'block';
+      document.getElementById('sessionBox').innerHTML = `<span class="pill">Logado</span> ${user.email}`;
+      renderTopics();
+      await loadMaterials();
+    }
+
+    async function logout() {
+      await db.auth.signOut();
+      location.reload();
+    }
+
+    async function loadMaterials() {
+      const body = document.getElementById('materialsBody');
+      body.innerHTML = '<tr><td colspan="5">Carregando...</td></tr>';
+      const { data, error } = await db.from('learning_materials').select('*').order('created_at', { ascending: false });
+      if (error) {
+        body.innerHTML = `<tr><td colspan="5" class="err">${error.message}</td></tr>`;
+        return;
+      }
+      body.innerHTML = (data || []).map(m => `<tr><td>${m.title}</td><td>${m.topic}</td><td>${m.content_type}</td><td>${m.is_published ? 'Publicado' : 'Rascunho'}</td><td>${m.file_name}</td></tr>`).join('') || '<tr><td colspan="5">Nenhum material ainda.</td></tr>';
+    }
+
+    document.getElementById('topic').addEventListener('change', e => selectTopic(e.target.value));
+    document.getElementById('uploadForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const status = document.getElementById('uploadStatus');
+      const btn = document.getElementById('sendBtn');
+      const file = document.getElementById('file').files[0];
+      if (!file) return;
+      btn.disabled = true;
+      status.textContent = 'Enviando arquivo...';
+      const filePath = `${selectedTopic}/${Date.now()}-${sanitize(file.name)}`;
+      try {
+        const uploaded = await db.storage.from(BUCKET).upload(filePath, file, { contentType: file.type || undefined });
+        if (uploaded.error) throw uploaded.error;
+        status.textContent = 'Salvando cadastro...';
+        const inserted = await db.from('learning_materials').insert([{
+          topic: selectedTopic,
+          title: document.getElementById('title').value.trim(),
+          description: document.getElementById('description').value.trim(),
+          content_type: document.getElementById('type').value,
+          file_path: filePath,
+          file_name: file.name,
+          file_size: file.size,
+          mime_type: file.type,
+          is_published: document.getElementById('published').checked,
+          created_by: user.id
+        }]);
+        if (inserted.error) throw inserted.error;
+        status.innerHTML = '<span class="ok">Material enviado com sucesso.</span>';
+        e.target.reset();
+        renderTopics();
+        await loadMaterials();
+      } catch (err) {
+        status.innerHTML = `<span class="err">${err.message}</span>`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    (async function init() {
+      const session = await db.auth.getSession();
+      if (session.data.session?.user) {
+        user = session.data.session.user;
+        await showAdmin();
+      } else {
+        renderTopics();
+      }
+    })();
+  </script>
+</body>
+</html>
