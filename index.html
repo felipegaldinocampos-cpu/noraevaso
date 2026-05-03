@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Felipe Galdino Campos | Ensino em Medicina Intensiva</title>
+    <meta name="description" content="Conteúdo de UTI baseado em evidências para quem está se formando na medicina intensiva.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blue-50: #E6F1FB;
+            --blue-100: #B5D4F4;
+            --blue-200: #85B7EB;
+            --blue-400: #378ADD;
+            --blue-600: #185FA5;
+            --blue-800: #0C447C;
+            --blue-900: #042C53;
+            --gray-50: #F1EFE8;
+            --gray-100: #D3D1C7;
+            --gray-200: #B4B2A9;
+            --gray-400: #888780;
+            --gray-600: #5F5E5A;
+            --gray-800: #444441;
+            --gray-900: #2C2C2A;
+            --white: #FFFFFF;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            background: var(--white);
+            color: var(--gray-900);
+            line-height: 1.6;
+        }
+
+        /* Header / Nav */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 0.5px solid #E5E5E5;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        .nav-tag {
+            font-size: 11px;
+            background: var(--gray-50);
+            border: 0.5px solid #E5E5E5;
+            border-radius: 6px;
+            padding: 4px 12px;
+            color: var(--gray-600);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 4rem 2rem 3rem;
+            border-bottom: 0.5px solid #E5E5E5;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+        }
+
+        .hero-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.5rem;
+            line-height: 1.1;
+            margin: 0 0 1rem;
+            color: var(--gray-900);
+            max-width: 700px;
+        }
+
+        .hero-name em {
+            font-style: italic;
+            color: var(--blue-600);
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--gray-600);
+            line-height: 1.7;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 100px;
+            border: 0.5px solid #D3D1C7;
+            color: var(--gray-600);
+            display: inline-block;
+        }
+
+        .badge.accent {
+            border-color: var(--blue-600);
+            color: var(--blue-800);
+            background: var(--blue-50);
+        }
+
+        /* Section Label */
+        .section-label {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            padding: 2rem 2rem 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Topics Grid */
+        .topics-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0;
+            border: 0.5px solid #E5E5E5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .topic-card {
+            border-right: 0.5px solid #E5E5E5;
+            border-bottom: 0.5px solid #E5E5E5;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            background: var(--white);
+        }
+
+        .topic-card:last-child {
+            border-right: none;
+        }
+
+        .topic-card:hover {
+            background: var(--blue-50);
+            box-shadow: inset 0 0 0 0.5px var(--blue-200);
+        }
+
+        .topic-icon {
+            font-size: 28px;
+            margin-bottom: 1rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--blue-50);
+        }
+
+        .topic-name {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--gray-900);
+        }
+
+        .topic-count {
+            font-size: 12px;
+            color: var(--gray-600);
+            line-height: 1.5;
+        }
+
+        .topic-arrow {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 13px;
+            color: var(--blue-600);
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-weight: 600;
+        }
+
+        .topic-card:hover .topic-arrow {
+            opacity: 1;
+        }
+
+        /* About Section */
+        .about-section {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .about {
+            background: var(--gray-50);
+            border-radius: 8px;
+            border: 0.5px solid #E5E5E5;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .about-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gray-600);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .about-text {
+            font-size: 14px;
+            line-height: 1.8;
+            color: var(--gray-700);
+        }
+
+        .about-right {
+            border-left: 0.5px solid #D3D1C7;
+            padding-left: 2rem;
+        }
+
+        .cred-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 8px 0;
+            border-bottom: 0.5px solid #D3D1C7;
+            color: var(--gray-700);
+        }
+
+        .cred-item:last-child {
+            border-bottom: none;
+        }
+
+        .cred-year {
+            color: var(--gray-600);
+        }
+
+        /* Footer */
+        footer {
+            padding: 2rem;
+            border-top: 0.5px solid #E5E5E5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            background: var(--gray-50);
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+
+        .footer-cremesp {
+            font-size: 12px;
+            color: var(--gray-600);
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-name {
+                font-size: 2.2rem;
+            }
+
+            .nav {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .about {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .about-right {
+                border-left: none;
+                border-top: 0.5px solid #D3D1C7;
+                padding-left: 0;
+                padding-top: 2rem;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .topics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topic-card {
+                border-right: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <span class="nav-logo">Dr. Felipe Galdino Campos</span>
+        <span class="nav-tag">Terapia Intensiva · Ensino</span>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <p class="hero-eyebrow">Medicina de terapia intensiva</p>
+        <h1 class="hero-name">Aprenda com<br>quem está na <em>beira do leito.</em></h1>
+        <p class="hero-sub">Conteúdo de UTI baseado em evidências — direto, aplicável e pensado para quem está se formando na medicina intensiva.</p>
+        <div class="badges">
+            <span class="badge accent">Intensivista titulado AMIB 2024</span>
+            <span class="badge accent">Clínica Médica SBCM 2025</span>
+            <span class="badge">H. Israelita Albert Einstein</span>
+            <span class="badge">H. M'Boi Mirim · SP</span>
+        </div>
+    </div>
+
+    <!-- Topics Section -->
+    <p class="section-label">Tópicos</p>
+    <div class="topics-container">
+        <div class="topics-grid">
+            <!-- Neurológico -->
+            <div class="topic-card">
+                <div class="topic-icon">🧠</div>
+                <h3 class="topic-name">Neurológico</h3>
+                <p class="topic-count">Coma · AVC · HIC · Monitorização</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Hemodinâmica -->
+            <div class="topic-card">
+                <div class="topic-icon">❤️</div>
+                <h3 class="topic-name">Hemodinâmica</h3>
+                <p class="topic-count">Choque · Vasopressores · Fluidos</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Respiratório -->
+            <div class="topic-card">
+                <div class="topic-icon">🫁</div>
+                <h3 class="topic-name">Respiratório</h3>
+                <p class="topic-count">VM · SDRA · Desmame · NIV</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Abdominal -->
+            <div class="topic-card">
+                <div class="topic-icon">🔬</div>
+                <h3 class="topic-name">Abdominal</h3>
+                <p class="topic-count">Fígado · Pâncreas · Nutrição</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Renal -->
+            <div class="topic-card">
+                <div class="topic-icon">🧪</div>
+                <h3 class="topic-name">Renal</h3>
+                <p class="topic-count">IRA · TCRR · Eletrólitos</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Profilaxias -->
+            <div class="topic-card">
+                <div class="topic-icon">🛡️</div>
+                <h3 class="topic-name">Profilaxias</h3>
+                <p class="topic-count">TVP · ÚGSP · Infecção</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Dispositivos -->
+            <div class="topic-card">
+                <div class="topic-icon">⚙️</div>
+                <h3 class="topic-name">Dispositivos</h3>
+                <p class="topic-count">CVC · PAI · Swan-Ganz</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Procedimentos -->
+            <div class="topic-card">
+                <div class="topic-icon">🩺</div>
+                <h3 class="topic-name">Procedimentos</h3>
+                <p class="topic-count">IOT · Drenos · Punções</p>
+                <span class="topic-arrow">→</span>
+            </div>
+
+            <!-- Miscelânea -->
+            <div class="topic-card">
+                <div class="topic-icon">📚</div>
+                <h3 class="topic-name">Miscelânea</h3>
+                <p class="topic-count">Sedação · Ética · Delirium</p>
+                <span class="topic-arrow">→</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <div class="about-section">
+        <div class="about">
+            <div class="about-left">
+                <p class="about-label">Sobre</p>
+                <p class="about-text">Médico intensivista titulado, formado pela Faculdade de Ciências Médicas de Minas Gerais, com residência no Hospital Israelita Albert Einstein. Atuo na UTI adulto do Hospital M'Boi Mirim — SP. Fiz observership em neurocare na University of Florida – Shands Hospital. Este espaço nasceu da vontade de compartilhar o que aprendi na prática, com base em evidências reais.</p>
+            </div>
+            <div class="about-right">
+                <p class="about-label">Formação e títulos</p>
+                <div class="cred-item">
+                    <span>Medicina · FCMMG</span>
+                    <span class="cred-year">2020</span>
+                </div>
+                <div class="cred-item">
+                    <span>Residência · Albert Einstein</span>
+                    <span class="cred-year">2023</span>
+                </div>
+                <div class="cred-item">
+                    <span>Intensivista titulado · AMIB</span>
+                    <span class="cred-year">2024</span>
+                </div>
+                <div class="cred-item">
+                    <span>Clínica Médica · SBCM</span>
+                    <span class="cred-year">2025</span>
+                </div>
+                <div class="cred-item">
+                    <span>Neurocare · UF Shands</span>
+                    <span class="cred-year">2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <span class="footer-text">São Paulo, SP · Ensino em medicina intensiva</span>
+        <span class="footer-cremesp">CREMESP 229126 · RQE 137253</span>
+    </footer>
+</body>
+</html>
