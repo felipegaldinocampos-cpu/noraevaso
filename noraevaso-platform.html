@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nora e Vaso - Plataforma de Ensino</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Sora', sans-serif; background: #f5f5f5; color: #2C2C2A; font-size: 14px; }
+
+        /* AUTH */
+        .auth-container { max-width: 420px; margin: 4rem auto; padding: 0 1rem; }
+        .auth-card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #e5e5e5; }
+        .auth-title { font-size: 28px; margin-bottom: 0.5rem; color: #042C53; }
+        .auth-subtitle { color: #666; margin-bottom: 2rem; font-size: 14px; }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 13px; margin-bottom: 4px; font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1px solid #ddd;
+            border-radius: 4px; font-size: 14px; font-family: inherit; background: white;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none; border-color: #185FA5; box-shadow: 0 0 0 2px rgba(24, 95, 165, 0.1);
+        }
+
+        .btn { padding: 9px 14px; border: none; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+        .btn-primary { background: #185FA5; color: white; }
+        .btn-primary:hover { background: #0C447C; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-block { width: 100%; margin-top: 1rem; }
+        .btn-link { background: none; border: none; color: #185FA5; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .btn-secondary { background: white; border: 1px solid #ddd; color: #333; }
+        .btn-secondary:hover { background: #f5f5f5; }
+
+        .alert { padding: 10px; margin-bottom: 1rem; border-radius: 4px; font-size: 13px; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #4caf50; }
+        .alert-error { background: #ffebee; color: #c62828; border: 1px solid #f44336; }
+
+        .divider { text-align: center; margin: 1.5rem 0; font-size: 13px; color: #666; }
+
+        /* SHELL */
+        .app-shell { display: flex; min-height: 100vh; }
+
+        /* TOP BAR */
+        .top-bar {
+            background: white; padding: 0.75rem 1.5rem; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #e5e5e5; height: 56px;
+        }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; }
+        .top-bar-title { font-weight: 600; color: #042C53; font-size: 15px; }
+        .top-bar-badge {
+            display: inline-block; padding: 3px 10px; background: #185FA5;
+            color: white; border-radius: 4px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+        }
+        .top-bar-badge.admin { background: #042C53; }
+        .top-bar-right { display: flex; align-items: center; gap: 0.75rem; }
+        .top-bar-user { font-size: 12px; color: #666; }
+        .top-bar-user strong { color: #042C53; }
+        .role-pill {
+            display: inline-block; padding: 2px 8px; background: #fff3cd;
+            color: #856404; border-radius: 3px; font-size: 10px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.05em; margin-left: 4px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px; background: white; border-right: 1px solid #e5e5e5;
+            padding: 1rem 0; display: flex; flex-direction: column;
+        }
+        .sidebar-section {
+            font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em;
+            color: #999; padding: 0.75rem 1.25rem 0.4rem; font-weight: 600;
+        }
+        .sidebar-section.admin-section { color: #c62828; }
+        .sidebar-link {
+            display: flex; align-items: center; gap: 8px;
+            width: 100%; padding: 8px 1.25rem; background: none;
+            border: none; color: #2C2C2A; text-align: left; cursor: pointer;
+            font-size: 13px; font-family: inherit; transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-link:hover { background: #f5f5f5; }
+        .sidebar-link.active { background: #E6F1FB; color: #185FA5; border-left-color: #185FA5; font-weight: 600; }
+        .sidebar-link.admin-link.active { background: #fee; color: #c62828; border-left-color: #c62828; }
+        .sidebar-icon { width: 16px; text-align: center; }
+
+        .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .main-content { flex: 1; overflow: auto; padding: 1.5rem 2rem; background: #f5f5f5; }
+
+        .page-header { margin-bottom: 1.5rem; }
+        .page-title { font-size: 22px; color: #042C53; margin-bottom: 0.25rem; font-weight: 700; }
+        .page-subtitle { color: #666; font-size: 13px; }
+
+        .card { background: white; padding: 1.25rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #e5e5e5; }
+        .card-title { font-size: 14px; font-weight: 600; color: #042C53; margin-bottom: 0.5rem; }
+
+        /* STATS */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem; margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: white; padding: 1rem 1.25rem; border-radius: 6px; border: 1px solid #e5e5e5;
+        }
+        .stat-label {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #888; font-weight: 600; margin-bottom: 0.4rem;
+        }
+        .stat-value { font-size: 26px; font-weight: 700; color: #042C53; line-height: 1.1; }
+        .stat-meta { font-size: 11px; color: #999; margin-top: 0.4rem; }
+
+        /* TABLES */
+        .table-wrap { background: white; border-radius: 6px; border: 1px solid #e5e5e5; overflow: hidden; }
+        .table-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem; border-bottom: 1px solid #e5e5e5; background: #fafafa;
+        }
+        .table-header-info {
+            font-size: 12px; color: #666; display: flex; align-items: center; gap: 8px;
+        }
+        .live-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #4caf50;
+            display: inline-block; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            text-align: left; padding: 8px 12px; font-size: 11px;
+            text-transform: uppercase; letter-spacing: 0.05em; color: #666;
+            background: #fafafa; border-bottom: 1px solid #e5e5e5; font-weight: 600;
+        }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; font-size: 12px; vertical-align: top; }
+        tr:hover td { background: #fafbfc; }
+        .td-time { white-space: nowrap; color: #666; font-family: monospace; font-size: 11px; }
+        .td-user { font-weight: 500; color: #042C53; }
+        .td-detail { color: #555; line-height: 1.5; max-width: 400px; }
+        .td-device { font-size: 11px; color: #999; white-space: nowrap; }
+
+        .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 3px;
+            font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .badge-default { background: #f0f0f0; color: #666; }
+        .badge-info { background: #E6F1FB; color: #185FA5; }
+        .badge-success { background: #e8f5e9; color: #2e7d32; }
+        .badge-warning { background: #fff3cd; color: #856404; }
+        .badge-danger { background: #ffebee; color: #c62828; }
+
+        /* FILTERS */
+        .filters-bar {
+            background: white; padding: 1rem; border-radius: 6px; border: 1px solid #e5e5e5;
+            margin-bottom: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem; align-items: end;
+        }
+        .filter-group label {
+            display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;
+            color: #888; font-weight: 600; margin-bottom: 4px;
+        }
+        .filter-group input, .filter-group select {
+            width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 4px;
+            font-size: 12px; font-family: inherit;
+        }
+        .filter-actions { display: flex; gap: 6px; align-items: end; }
+
+        /* PAGINATION */
+        .pagination {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1rem; border-top: 1px solid #e5e5e5; background: #fafafa;
+            font-size: 12px; color: #666;
+        }
+        .pagination-controls { display: flex; gap: 6px; align-items: center; }
+        .pagination button {
+            padding: 4px 10px; background: white; border: 1px solid #ddd;
+            border-radius: 3px; cursor: pointer; font-size: 12px; font-family: inherit;
+        }
+        .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination button:hover:not(:disabled) { background: #f5f5f5; }
+
+        /* USER */
+        .info-box { background: #E6F1FB; padding: 1rem; border-radius: 6px; border: 1px solid #85B7EB; margin-bottom: 1.5rem; }
+        .info-box h3 { margin-bottom: 0.4rem; color: #042C53; font-size: 14px; }
+        .info-box p { margin: 0; font-size: 12px; color: #185FA5; line-height: 1.6; }
+
+        .topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+        .topic-card {
+            background: white; padding: 1rem; border-radius: 6px; border: 1px solid #e5e5e5;
+            cursor: pointer; transition: all 0.15s;
+        }
+        .topic-card:hover { border-color: #185FA5; box-shadow: 0 2px 8px rgba(24, 95, 165, 0.1); }
+        .topic-card-title { font-size: 14px; font-weight: 600; color: #042C53; margin-bottom: 4px; }
+        .topic-card-meta { font-size: 11px; color: #999; }
+
+        .empty-state { text-align: center; padding: 2rem; color: #999; font-size: 13px; }
+
+        .logout-btn {
+            padding: 6px 12px; background: white; border: 1px solid #c62828;
+            color: #c62828; border-radius: 4px; cursor: pointer; font-size: 12px;
+            font-family: inherit; font-weight: 600;
+        }
+        .logout-btn:hover { background: #c62828; color: white; }
+
+        @media (max-width: 768px) {
+            .app-shell { flex-direction: column; }
+            .sidebar { width: 100%; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+    // ================================================================
+    // CREDENCIAIS DO SUPABASE
+    // ================================================================
+    const SUPABASE_URL = 'https://aueniphfvgsweusjycyb.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF1ZW5pcGhmdmdzd2V1c2p5Y3liIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc3ODIxMjMsImV4cCI6MjA5MzM1ODEyM30.OAgMpcVk63gVjVXNEbQvR4tFns1mcqrTNEYXYilNpes';
+    // ================================================================
+
+    let db = null;
+    let currentUser = null;
+    let currentRole = null;
+    let currentProfile = null;
+    let currentPage = 'topicos'; // página ativa (qualquer das duas seções)
+
+    let logFilters = { dateFrom: '', dateTo: '', userQuery: '', actionType: '' };
+    let logPage = 1;
+    const LOGS_PER_PAGE = 25;
+
+    if (window.supabase) {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+
+    // ============= UTILS =============
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        const div = document.createElement('div');
+        div.textContent = String(text);
+        return div.innerHTML;
+    }
+
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        const w = window.screen.width;
+        const h = window.screen.height;
+        let icon = '🖥️', os = 'Web';
+        if (/iPhone|iPad|iPod/i.test(ua)) { icon = '📱'; os = 'iOS'; }
+        else if (/Android/i.test(ua)) { icon = '📱'; os = 'Android'; }
+        else if (/Macintosh|Mac OS/i.test(ua)) { icon = '💻'; os = 'Mac'; }
+        else if (/Windows/i.test(ua)) { icon = '🖥️'; os = 'Win'; }
+        else if (/Linux/i.test(ua)) { icon = '🖥️'; os = 'Linux'; }
+        return `${icon} ${os} ${w}x${h}`;
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '—';
+        const d = new Date(dateStr);
+        return `${d.toLocaleDateString('pt-BR')}, ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+    }
+
+    async function logAction(action, details) {
+        if (!currentUser || !db) return;
+        try {
+            await db.from('admin_logs').insert([{
+                admin_id: currentUser.id,
+                action: action,
+                details: details || {},
+                device: getDeviceInfo(),
+                user_email: currentUser.email,
+                user_name: (currentProfile && currentProfile.full_name) || currentUser.email
+            }]);
+        } catch (err) {
+            console.warn('Falha ao registrar log:', err);
+        }
+    }
+
+    function getActionBadge(action) {
+        const map = {
+            'Login': 'badge-success', 'Logout': 'badge-default', 'Cadastro': 'badge-info',
+            'Acesso Tópico': 'badge-info', 'Criar Anotação': 'badge-success',
+            'Editar Perfil': 'badge-warning', 'Acesso Admin': 'badge-warning'
+        };
+        return map[action] || 'badge-default';
+    }
+
+    function isAdmin() {
+        return currentRole === 'admin';
+    }
+
+    // ============= LOGIN / SIGNUP =============
+    function renderLogin(errorMsg) {
+        document.getElementById('app').innerHTML = `
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h1 class="auth-title">Nora e Vaso</h1>
+                    <p class="auth-subtitle">Ensino em Medicina Intensiva</p>
+                    ${errorMsg ? `<div class="alert ${errorMsg.includes('✅') ? 'alert-success' : 'alert-error'}">${errorMsg}</div>` : ''}
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha</label>
+                            <input type="password" id="loginPassword" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Entrar</button>
+                        <div class="divider">
+                            Sem conta?
+                            <button type="button" class="btn-link" onclick="renderSignup()">Cadastre-se</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    }
+
+    function renderSignup(errorMsg) {
+        document.getElementById('app').innerHTML = `
+            <div class="auth-container">
+                <div class="auth-card">
+                    <h1 class="auth-title">Nora e Vaso</h1>
+                    <p class="auth-subtitle">Crie sua conta</p>
+                    ${errorMsg ? `<div class="alert ${errorMsg.includes('✅') ? 'alert-success' : 'alert-error'}">${errorMsg}</div>` : ''}
+                    <form id="signupForm">
+                        <div class="form-group">
+                            <label>Nome completo</label>
+                            <input type="text" id="signupName" placeholder="Dr. Felipe Campos" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="signupEmail" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Senha (mínimo 6 caracteres)</label>
+                            <input type="password" id="signupPassword" placeholder="••••••••" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="signupBtn">Cadastrar</button>
+                        <div class="divider">
+                            Já tem conta?
+                            <button type="button" class="btn-link" onclick="renderLogin()">Entrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.getElementById('signupForm').addEventListener('submit', handleSignup);
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        const btn = document.getElementById('loginBtn');
+        btn.disabled = true;
+        btn.textContent = 'Entrando...';
+
+        try {
+            const result = await db.auth.signInWithPassword({ email, password });
+            if (result.error) throw result.error;
+
+            currentUser = result.data.user;
+            const profileResult = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+            currentProfile = profileResult.data;
+            currentRole = (currentProfile && currentProfile.role) ? currentProfile.role : 'user';
+
+            await logAction('Login', { method: 'email/password' });
+            currentPage = 'topicos';
+            renderShell();
+        } catch (err) {
+            renderLogin('❌ ' + err.message);
+        }
+    }
+
+    async function handleSignup(e) {
+        e.preventDefault();
+        const fullName = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        const btn = document.getElementById('signupBtn');
+        btn.disabled = true;
+        btn.textContent = 'Criando conta...';
+
+        try {
+            const result = await db.auth.signUp({
+                email, password,
+                options: { data: { full_name: fullName } }
+            });
+            if (result.error) throw result.error;
+            renderSignup('✅ Conta criada! Verifique seu email para confirmar e depois faça login.');
+        } catch (err) {
+            renderSignup('❌ ' + err.message);
+        }
+    }
+
+    async function handleLogout() {
+        await logAction('Logout', {});
+        await db.auth.signOut();
+        currentUser = null;
+        currentRole = null;
+        currentProfile = null;
+        renderLogin();
+    }
+
+    // ============= SHELL UNIFICADO =============
+    function renderShell() {
+        const adminMode = ['analise', 'logs', 'usuarios', 'admin-anotacoes', 'conteudo', 'config', 'seguranca'].includes(currentPage);
+
+        document.getElementById('app').innerHTML = `
+            <div class="app-shell">
+                <div class="sidebar" id="sidebar"></div>
+                <div class="main-area">
+                    <div class="top-bar">
+                        <div class="top-bar-left">
+                            <span class="top-bar-badge ${adminMode ? 'admin' : ''}">${adminMode ? 'ADMIN' : 'NORA E VASO'}</span>
+                            <span class="top-bar-title">${adminMode ? 'Painel Administrativo' : 'Ensino em Medicina Intensiva'}</span>
+                        </div>
+                        <div class="top-bar-right">
+                            <span class="top-bar-user">
+                                <strong>${escapeHtml((currentProfile && currentProfile.full_name) || currentUser.email)}</strong>
+                                ${isAdmin() ? '<span class="role-pill">Admin</span>' : ''}
+                            </span>
+                            <button class="logout-btn" onclick="handleLogout()">Sair</button>
+                        </div>
+                    </div>
+                    <div class="main-content" id="content"></div>
+                </div>
+            </div>
+        `;
+        renderSidebar();
+        renderPage();
+    }
+
+    function renderSidebar() {
+        const items = [];
+
+        // Seção do USUÁRIO (todos veem)
+        items.push({ section: 'Plataforma' });
+        items.push({ id: 'topicos', icon: '📚', label: 'Tópicos' });
+        items.push({ id: 'anotacoes', icon: '📝', label: 'Minhas anotações' });
+
+        // Seção ADMIN (só admin vê)
+        if (isAdmin()) {
+            items.push({ section: 'Admin · Análise', isAdmin: true });
+            items.push({ id: 'analise', icon: '📊', label: 'Dashboard', isAdmin: true });
+            items.push({ id: 'logs', icon: '🔍', label: 'Log de Auditoria', isAdmin: true });
+            items.push({ section: 'Admin · Gestão', isAdmin: true });
+            items.push({ id: 'usuarios', icon: '👥', label: 'Usuários', isAdmin: true });
+            items.push({ id: 'admin-anotacoes', icon: '📑', label: 'Todas anotações', isAdmin: true });
+            items.push({ id: 'conteudo', icon: '🗂️', label: 'Conteúdo', isAdmin: true });
+            items.push({ section: 'Admin · Sistema', isAdmin: true });
+            items.push({ id: 'config', icon: '⚙️', label: 'Configurações', isAdmin: true });
+            items.push({ id: 'seguranca', icon: '🔐', label: 'Segurança', isAdmin: true });
+        }
+
+        let html = '';
+        items.forEach(it => {
+            if (it.section) {
+                const cls = it.isAdmin ? 'sidebar-section admin-section' : 'sidebar-section';
+                html += `<div class="${cls}">${it.section}</div>`;
+            } else {
+                const active = currentPage === it.id ? 'active' : '';
+                const adminCls = it.isAdmin ? 'admin-link' : '';
+                html += `<button class="sidebar-link ${adminCls} ${active}" onclick="changePage('${it.id}')">
+                    <span class="sidebar-icon">${it.icon}</span> ${it.label}
+                </button>`;
+            }
+        });
+        html += `<div style="flex:1"></div>`;
+        html += `<div class="sidebar-section">Conta</div>`;
+        html += `<button class="sidebar-link" onclick="handleLogout()"><span class="sidebar-icon">🚪</span> Sair</button>`;
+        document.getElementById('sidebar').innerHTML = html;
+    }
+
+    function changePage(page) {
+        currentPage = page;
+        logPage = 1;
+        renderShell();
+    }
+
+    async function renderPage() {
+        const content = document.getElementById('content');
+        content.innerHTML = '<div class="empty-state">Carregando...</div>';
+
+        // Páginas do usuário
+        if (currentPage === 'topicos') await renderTopicos(content);
+        else if (currentPage === 'anotacoes') await renderMinhasAnotacoes(content);
+        // Páginas do admin
+        else if (currentPage === 'analise') await renderAnalise(content);
+        else if (currentPage === 'logs') await renderLogs(content);
+        else if (currentPage === 'usuarios') await renderUsuarios(content);
+        else if (currentPage === 'admin-anotacoes') await renderTodasAnotacoes(content);
+        else if (currentPage === 'conteudo') await renderConteudo(content);
+        else if (currentPage === 'config') await renderConfig(content);
+        else if (currentPage === 'seguranca') await renderSeguranca(content);
+    }
+
+    // ============= PÁGINAS DO USUÁRIO =============
+    async function renderTopicos(content) {
+        const topics = ['Neurológico', 'Hemodinâmica', 'Respiratório',
+                        'Abdominal', 'Renal', 'Profilaxias',
+                        'Dispositivos', 'Procedimentos', 'Miscelânea'];
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">📚 Tópicos</h1>
+                <p class="page-subtitle">Conteúdo de medicina intensiva organizado por sistema</p>
+            </div>
+
+            <div class="info-box">
+                <h3>📚 Seu acesso</h3>
+                <p>Acesso completo aos 9 tópicos de medicina intensiva</p>
+            </div>
+
+            <div class="topics-grid">
+                ${topics.map(t => `
+                    <div class="topic-card" onclick="accessTopic('${t}')">
+                        <div class="topic-card-title">${t}</div>
+                        <div class="topic-card-meta">Em construção</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    async function accessTopic(topic) {
+        await logAction('Acesso Tópico', { topic: topic });
+        alert(`Tópico "${topic}" — conteúdo em construção.\n\nEsse acesso foi registrado no log de auditoria.`);
+    }
+
+    async function renderMinhasAnotacoes(content) {
+        const reportsResult = await db.from('reports').select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+        const reports = reportsResult.data || [];
+
+        const reportsHtml = reports.map(r => `
+            <div class="card">
+                <div class="card-title">${escapeHtml(r.title)}</div>
+                <div style="color: #555; font-size: 13px; margin-bottom: 6px;">${escapeHtml(r.content)}</div>
+                <div style="font-size: 11px; color: #999;">${formatDateTime(r.created_at)}</div>
+            </div>
+        `).join('');
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">📝 Minhas anotações</h1>
+                <p class="page-subtitle">Suas anotações pessoais sobre os tópicos</p>
+            </div>
+
+            <form id="reportForm" class="card" style="margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label>Adicionar anotação</label>
+                    <textarea id="newReport" placeholder="Escreva sua anotação..." style="min-height: 80px;" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" id="saveReportBtn">Salvar anotação</button>
+            </form>
+
+            ${reportsHtml.length > 0 ? reportsHtml : '<div class="empty-state">Nenhuma anotação ainda</div>'}
+        `;
+
+        document.getElementById('reportForm').addEventListener('submit', handleAddReport);
+    }
+
+    async function handleAddReport(e) {
+        e.preventDefault();
+        const content = document.getElementById('newReport').value;
+        const btn = document.getElementById('saveReportBtn');
+        btn.disabled = true;
+        btn.textContent = 'Salvando...';
+
+        try {
+            const result = await db.from('reports').insert([{
+                user_id: currentUser.id,
+                title: 'Anotação',
+                content: content,
+                topic: 'geral'
+            }]);
+            if (result.error) throw result.error;
+            await logAction('Criar Anotação', { length: content.length });
+            renderPage();
+        } catch (err) {
+            alert('Erro: ' + err.message);
+            btn.disabled = false;
+            btn.textContent = 'Salvar anotação';
+        }
+    }
+
+    // ============= ADMIN: DASHBOARD =============
+    async function renderAnalise(content) {
+        const profilesRes = await db.from('profiles').select('*');
+        const reportsRes = await db.from('reports').select('*');
+        const logsRes = await db.from('admin_logs').select('*').order('created_at', { ascending: false }).limit(10);
+
+        const profiles = profilesRes.data || [];
+        const reports = reportsRes.data || [];
+        const recentLogs = logsRes.data || [];
+
+        const today = new Date().toISOString().split('T')[0];
+        const reportsToday = reports.filter(r => r.created_at && r.created_at.startsWith(today)).length;
+
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const newUsersWeek = profiles.filter(p => p.created_at && new Date(p.created_at) > weekAgo).length;
+
+        const recentLogsHtml = recentLogs.map(l => `
+            <tr>
+                <td class="td-time">${formatDateTime(l.created_at)}</td>
+                <td class="td-user">${escapeHtml(l.user_name || '—')}</td>
+                <td><span class="badge ${getActionBadge(l.action)}">${escapeHtml(l.action)}</span></td>
+                <td class="td-detail">${escapeHtml(JSON.stringify(l.details || {}))}</td>
+            </tr>
+        `).join('');
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">📊 Dashboard</h1>
+                <p class="page-subtitle">Visão geral da plataforma</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total de Usuários</div>
+                    <div class="stat-value">${profiles.length}</div>
+                    <div class="stat-meta">+${newUsersWeek} esta semana</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total de Anotações</div>
+                    <div class="stat-value">${reports.length}</div>
+                    <div class="stat-meta">${reportsToday} hoje</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Admins</div>
+                    <div class="stat-value">${profiles.filter(p => p.role === 'admin').length}</div>
+                    <div class="stat-meta">Com acesso total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Plano Pago</div>
+                    <div class="stat-value">${profiles.filter(p => p.subscription_plan && p.subscription_plan !== 'free').length}</div>
+                    <div class="stat-meta">Receita ativa</div>
+                </div>
+            </div>
+
+            <div class="card-title" style="margin-top:1.5rem;font-size:14px;">Atividade recente</div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:160px">Data/Hora</th>
+                            <th style="width:160px">Usuário</th>
+                            <th style="width:130px">Ação</th>
+                            <th>Detalhe</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recentLogsHtml || '<tr><td colspan="4" class="empty-state">Sem atividade ainda</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // ============= ADMIN: LOGS =============
+    async function renderLogs(content) {
+        await logAction('Acesso Admin', { page: 'logs' });
+
+        let query = db.from('admin_logs').select('*', { count: 'exact' });
+
+        if (logFilters.dateFrom) query = query.gte('created_at', logFilters.dateFrom + 'T00:00:00');
+        if (logFilters.dateTo) query = query.lte('created_at', logFilters.dateTo + 'T23:59:59');
+        if (logFilters.actionType) query = query.eq('action', logFilters.actionType);
+        if (logFilters.userQuery) query = query.or(`user_name.ilike.%${logFilters.userQuery}%,user_email.ilike.%${logFilters.userQuery}%`);
+
+        const from = (logPage - 1) * LOGS_PER_PAGE;
+        const to = from + LOGS_PER_PAGE - 1;
+
+        const result = await query.order('created_at', { ascending: false }).range(from, to);
+        const logs = result.data || [];
+        const total = result.count || 0;
+        const totalPages = Math.max(1, Math.ceil(total / LOGS_PER_PAGE));
+
+        const logsHtml = logs.map(l => {
+            let detailStr = '';
+            if (l.details && typeof l.details === 'object') {
+                const entries = Object.entries(l.details);
+                detailStr = entries.map(([k, v]) => `<strong>${escapeHtml(k)}:</strong> ${escapeHtml(v)}`).join(' · ');
+            }
+            return `
+                <tr>
+                    <td class="td-time">${formatDateTime(l.created_at)}</td>
+                    <td class="td-user">${escapeHtml(l.user_name || l.user_email || '—')}</td>
+                    <td><span class="badge ${getActionBadge(l.action)}">${escapeHtml(l.action)}</span></td>
+                    <td class="td-detail">${detailStr || '—'}</td>
+                    <td class="td-device">${escapeHtml(l.device || '—')}</td>
+                </tr>
+            `;
+        }).join('');
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">🔍 Log de Auditoria</h1>
+                <p class="page-subtitle">Registro de acessos e ações realizadas no sistema</p>
+            </div>
+
+            <div class="filters-bar">
+                <div class="filter-group">
+                    <label>De</label>
+                    <input type="date" id="filterDateFrom" value="${logFilters.dateFrom}">
+                </div>
+                <div class="filter-group">
+                    <label>Até</label>
+                    <input type="date" id="filterDateTo" value="${logFilters.dateTo}">
+                </div>
+                <div class="filter-group">
+                    <label>Usuário</label>
+                    <input type="text" id="filterUser" placeholder="Nome ou email" value="${logFilters.userQuery}">
+                </div>
+                <div class="filter-group">
+                    <label>Ação</label>
+                    <select id="filterAction">
+                        <option value="">Todas</option>
+                        <option ${logFilters.actionType === 'Login' ? 'selected' : ''}>Login</option>
+                        <option ${logFilters.actionType === 'Logout' ? 'selected' : ''}>Logout</option>
+                        <option ${logFilters.actionType === 'Cadastro' ? 'selected' : ''}>Cadastro</option>
+                        <option ${logFilters.actionType === 'Acesso Tópico' ? 'selected' : ''}>Acesso Tópico</option>
+                        <option ${logFilters.actionType === 'Criar Anotação' ? 'selected' : ''}>Criar Anotação</option>
+                        <option ${logFilters.actionType === 'Editar Perfil' ? 'selected' : ''}>Editar Perfil</option>
+                        <option ${logFilters.actionType === 'Acesso Admin' ? 'selected' : ''}>Acesso Admin</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-primary" onclick="applyLogFilters()">Filtrar</button>
+                    <button class="btn btn-secondary" onclick="clearLogFilters()">Limpar</button>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-info">
+                        <span class="live-dot"></span>
+                        <span>ao vivo · <strong>${total}</strong> ${total === 1 ? 'registro' : 'registros'}</span>
+                    </div>
+                    <button class="btn btn-secondary" onclick="renderPage()">↺ Atualizar</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:160px">Data/Hora</th>
+                            <th style="width:160px">Usuário</th>
+                            <th style="width:130px">Ação</th>
+                            <th>Detalhe</th>
+                            <th style="width:140px">Dispositivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${logsHtml || '<tr><td colspan="5" class="empty-state">Nenhum registro encontrado</td></tr>'}
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <span>Página <strong>${logPage}</strong> de <strong>${totalPages}</strong></span>
+                    <div class="pagination-controls">
+                        <button onclick="changeLogPage(${logPage - 1})" ${logPage <= 1 ? 'disabled' : ''}>← Anterior</button>
+                        <button onclick="changeLogPage(${logPage + 1})" ${logPage >= totalPages ? 'disabled' : ''}>Próxima →</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function applyLogFilters() {
+        logFilters.dateFrom = document.getElementById('filterDateFrom').value;
+        logFilters.dateTo = document.getElementById('filterDateTo').value;
+        logFilters.userQuery = document.getElementById('filterUser').value;
+        logFilters.actionType = document.getElementById('filterAction').value;
+        logPage = 1;
+        renderPage();
+    }
+
+    function clearLogFilters() {
+        logFilters = { dateFrom: '', dateTo: '', userQuery: '', actionType: '' };
+        logPage = 1;
+        renderPage();
+    }
+
+    function changeLogPage(p) {
+        if (p < 1) return;
+        logPage = p;
+        renderPage();
+    }
+
+    // ============= ADMIN: USUÁRIOS =============
+    async function renderUsuarios(content) {
+        const profilesRes = await db.from('profiles').select('*').order('created_at', { ascending: false });
+        const profiles = profilesRes.data || [];
+
+        const usersHtml = profiles.map(p => `
+            <tr>
+                <td class="td-user">${escapeHtml(p.full_name || '—')}</td>
+                <td>${escapeHtml(p.email || '—')}</td>
+                <td><span class="badge ${p.role === 'admin' ? 'badge-warning' : 'badge-info'}">${escapeHtml(p.role)}</span></td>
+                <td><span class="badge badge-default">${escapeHtml(p.subscription_plan || 'free')}</span></td>
+                <td class="td-time">${formatDateTime(p.created_at)}</td>
+            </tr>
+        `).join('');
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">👥 Usuários</h1>
+                <p class="page-subtitle">Gerencie os usuários da plataforma</p>
+            </div>
+
+            <div class="info-box">
+                <h3>📝 Criar novos usuários</h3>
+                <p>Para criar usuários: Supabase → Authentication → Users → "Add User". Para mudar permissão (admin/user), edite a tabela <code>profiles</code>.</p>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-info">
+                        <span>Total: <strong>${profiles.length}</strong></span>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th style="width:80px">Role</th>
+                            <th style="width:100px">Plano</th>
+                            <th style="width:160px">Cadastrado em</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${usersHtml || '<tr><td colspan="5" class="empty-state">Nenhum usuário</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // ============= ADMIN: TODAS ANOTAÇÕES =============
+    async function renderTodasAnotacoes(content) {
+        const reportsRes = await db.from('reports').select('*').order('created_at', { ascending: false });
+        const reports = reportsRes.data || [];
+
+        const reportsHtml = reports.map(r => `
+            <tr>
+                <td class="td-time">${formatDateTime(r.created_at)}</td>
+                <td class="td-user">${escapeHtml(r.user_id.substring(0, 8))}…</td>
+                <td><span class="badge badge-info">${escapeHtml(r.topic || 'geral')}</span></td>
+                <td class="td-detail">${escapeHtml(r.content || '').substring(0, 200)}${r.content && r.content.length > 200 ? '…' : ''}</td>
+            </tr>
+        `).join('');
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">📑 Todas anotações</h1>
+                <p class="page-subtitle">Anotações de todos os usuários</p>
+            </div>
+
+            <div class="table-wrap">
+                <div class="table-header">
+                    <div class="table-header-info">
+                        <span>Total: <strong>${reports.length}</strong></span>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:160px">Data/Hora</th>
+                            <th style="width:120px">Usuário ID</th>
+                            <th style="width:100px">Tópico</th>
+                            <th>Conteúdo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${reportsHtml || '<tr><td colspan="4" class="empty-state">Nenhuma anotação</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // ============= ADMIN: CONTEÚDO =============
+    async function renderConteudo(content) {
+        const topics = ['Neurológico', 'Hemodinâmica', 'Respiratório', 'Abdominal',
+                        'Renal', 'Profilaxias', 'Dispositivos', 'Procedimentos', 'Miscelânea'];
+
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">🗂️ Conteúdo</h1>
+                <p class="page-subtitle">Gerencie os tópicos e materiais educacionais</p>
+            </div>
+
+            <div class="topics-grid">
+                ${topics.map(t => `
+                    <div class="topic-card">
+                        <div class="topic-card-title">${t}</div>
+                        <div class="topic-card-meta">0 materiais</div>
+                    </div>
+                `).join('')}
+            </div>
+
+            <div class="info-box">
+                <h3>🚧 Em desenvolvimento</h3>
+                <p>Em breve você poderá criar e editar materiais para cada tópico aqui mesmo.</p>
+            </div>
+        `;
+    }
+
+    // ============= ADMIN: CONFIG =============
+    async function renderConfig(content) {
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">⚙️ Configurações</h1>
+                <p class="page-subtitle">Configurações gerais da plataforma</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Informações da plataforma</div>
+                <div style="font-size: 13px; color: #555; line-height: 2;">
+                    <div><strong>Admin atual:</strong> ${escapeHtml(currentUser.email)}</div>
+                    <div><strong>Versão:</strong> 2.1.0</div>
+                    <div><strong>Banco de dados:</strong> Supabase PostgreSQL</div>
+                    <div><strong>Autenticação:</strong> JWT (Supabase Auth)</div>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <h3>🚧 Próximas funcionalidades</h3>
+                <p>Integração com Stripe (pagamentos), planos personalizados, notificações por email, exportação de relatórios.</p>
+            </div>
+        `;
+    }
+
+    // ============= ADMIN: SEGURANÇA =============
+    async function renderSeguranca(content) {
+        content.innerHTML = `
+            <div class="page-header">
+                <h1 class="page-title">🔐 Segurança</h1>
+                <p class="page-subtitle">Recursos de segurança ativos</p>
+            </div>
+
+            <div class="info-box">
+                <h3>✅ Proteções ativas</h3>
+                <p>
+                    Row Level Security (RLS)<br>
+                    Autenticação JWT<br>
+                    Senhas criptografadas (bcrypt)<br>
+                    HTTPS obrigatório<br>
+                    Isolamento de dados por usuário<br>
+                    Log de auditoria completo
+                </p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Boas práticas</div>
+                <div style="font-size: 13px; color: #555; line-height: 1.8;">
+                    • Nunca compartilhe a chave <code>service_role</code><br>
+                    • Use senhas fortes (mínimo 8 caracteres com números e símbolos)<br>
+                    • Revise os logs de auditoria periodicamente<br>
+                    • Mantenha o número de admins ao mínimo necessário<br>
+                    • Faça backup do banco de dados pelo Supabase regularmente
+                </div>
+            </div>
+        `;
+    }
+
+    // ============= INIT =============
+    async function init() {
+        if (!db) {
+            document.getElementById('app').innerHTML = `
+                <div class="auth-container">
+                    <div class="alert alert-error">
+                        ❌ Erro ao carregar a biblioteca Supabase. Verifique sua conexão com a internet.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        try {
+            const sessionResult = await db.auth.getSession();
+            const session = sessionResult.data.session;
+
+            if (session && session.user) {
+                currentUser = session.user;
+                const profileResult = await db.from('profiles').select('*').eq('id', session.user.id).single();
+                currentProfile = profileResult.data;
+                currentRole = (currentProfile && currentProfile.role) ? currentProfile.role : 'user';
+                currentPage = 'topicos';
+                renderShell();
+            } else {
+                renderLogin();
+            }
+        } catch (err) {
+            console.error('Erro:', err);
+            renderLogin();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    </script>
+</body>
+</html>
