@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0109)file:///C:/Users/Galdino/Documents/Codex/2026-05-03/estou-fazendo-um-site-no-github/noraevaso-main/index.html -->
+<!-- saved from url=(0120)file:///C:/Users/Galdino/Documents/Codex/2026-05-03/estou-fazendo-um-site-no-github/noraevaso-main/index-atualizado.html -->
 <html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -259,26 +259,120 @@
 </head>
 <body>
     <div id="app">
-            <div class="auth-container">
-                <div class="auth-card">
-                    <h1 class="auth-title">Nora e Vaso</h1>
-                    <p class="auth-subtitle">Ensino em Medicina Intensiva</p>
-                    
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" id="loginEmail" placeholder="seu@email.com" required="">
+            <div class="app-shell">
+                <div class="sidebar" id="sidebar"><div class="sidebar-section">Plataforma</div><button class="sidebar-link  active" onclick="changePage(&#39;topicos&#39;)">
+                    <span class="sidebar-icon">📚</span> Tópicos
+                </button><button class="sidebar-link  " onclick="changePage(&#39;anotacoes&#39;)">
+                    <span class="sidebar-icon">📝</span> Minhas anotações
+                </button><div class="sidebar-section admin-section">Admin · Análise</div><button class="sidebar-link admin-link " onclick="changePage(&#39;analise&#39;)">
+                    <span class="sidebar-icon">📊</span> Dashboard
+                </button><button class="sidebar-link admin-link " onclick="changePage(&#39;logs&#39;)">
+                    <span class="sidebar-icon">🔍</span> Log de Auditoria
+                </button><div class="sidebar-section admin-section">Admin · Gestão</div><button class="sidebar-link admin-link " onclick="changePage(&#39;usuarios&#39;)">
+                    <span class="sidebar-icon">👥</span> Usuários
+                </button><button class="sidebar-link admin-link " onclick="changePage(&#39;admin-anotacoes&#39;)">
+                    <span class="sidebar-icon">📑</span> Todas anotações
+                </button><button class="sidebar-link admin-link " onclick="changePage(&#39;conteudo&#39;)">
+                    <span class="sidebar-icon">🗂️</span> Conteúdo
+                </button><div class="sidebar-section admin-section">Admin · Sistema</div><button class="sidebar-link admin-link " onclick="changePage(&#39;config&#39;)">
+                    <span class="sidebar-icon">⚙️</span> Configurações
+                </button><button class="sidebar-link admin-link " onclick="changePage(&#39;seguranca&#39;)">
+                    <span class="sidebar-icon">🔐</span> Segurança
+                </button><div style="flex:1"></div><div class="sidebar-section">Conta</div><button class="sidebar-link" onclick="handleLogout()"><span class="sidebar-icon">🚪</span> Sair</button></div>
+                <div class="main-area">
+                    <div class="top-bar">
+                        <div class="top-bar-left">
+                            <span class="top-bar-badge ">NORA E VASO</span>
+                            <span class="top-bar-title">Ensino em Medicina Intensiva</span>
                         </div>
-                        <div class="form-group">
-                            <label>Senha</label>
-                            <input type="password" id="loginPassword" placeholder="••••••••" required="">
+                        <div class="top-bar-right">
+                            <span class="top-bar-user">
+                                <strong>DR. FELIPE</strong>
+                                <span class="role-pill">Admin</span>
+                            </span>
+                            <button class="logout-btn" onclick="handleLogout()">Sair</button>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Entrar</button>
-                        <div class="divider">
-                            Sem conta?
-                            <button type="button" class="btn-link" onclick="renderSignup()">Cadastre-se</button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="main-content" id="content">
+            <div class="page-header">
+                <h1 class="page-title">📚 Tópicos</h1>
+                <p class="page-subtitle">Aulas e materiais de medicina intensiva organizados por sistema</p>
+            </div>
+
+            <div class="info-box">
+                <h3>📚 Seu acesso</h3>
+                <p>Acesse os materiais publicados em cada árvore de ensino.</p>
+            </div>
+
+            <div class="topics-grid">
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;neurologico&#39;)">
+                        <div class="topic-card-title">Neurológico</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Neurologia intensiva, sedação, delirium, AVC, convulsões e coma.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;hemodinamica&#39;)">
+                        <div class="topic-card-title">Hemodinâmica</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Choque, drogas vasoativas, monitorização, reposição volêmica e perfusão.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;respiratorio&#39;)">
+                        <div class="topic-card-title">Respiratório</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Ventilação mecânica, insuficiência respiratória, SDRA e desmame.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;abdominal&#39;)">
+                        <div class="topic-card-title">Abdominal</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Sepse abdominal, pancreatite, fígado, nutrição e abdome agudo no CTI.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;renal&#39;)">
+                        <div class="topic-card-title">Renal</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Lesão renal aguda, distúrbios eletrolíticos, diálise e balanço hídrico.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;profilaxias&#39;)">
+                        <div class="topic-card-title">Profilaxias</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Trombose, úlcera de estresse, prevenção de infecção e bundles assistenciais.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;dispositivos&#39;)">
+                        <div class="topic-card-title">Dispositivos</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Cateteres, drenos, sondas, acessos, monitores e cuidados relacionados.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;procedimentos&#39;)">
+                        <div class="topic-card-title">Procedimentos</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Passo a passo, indicações, contraindicações e segurança à beira-leito.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+                    <div class="topic-card" onclick="accessTopic(&#39;miscelanea&#39;)">
+                        <div class="topic-card-title">Miscelânea</div>
+                        <div class="topic-card-meta">0 materialis disponívelis</div>
+                        <div class="topic-card-description">Temas transversais e conteúdos complementares de terapia intensiva.</div>
+                        <span class="topic-card-count">Aguardando publicação</span>
+                    </div>
+                
+            </div>
+
+            
+        </div>
                 </div>
             </div>
         </div>
@@ -321,6 +415,7 @@
     ];
     let selectedTopicSlug = null;
     let contentAdminFilter = 'all';
+    let selectedUploadTopic = 'neurologico';
 
     if (window.supabase) {
         db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1150,6 +1245,7 @@
         }
 
         const counts = countMaterialsByTopic(materials);
+        const selectedUploadTopicInfo = getTopic(selectedUploadTopic) || LEARNING_TOPICS[0];
         const filteredMaterials = contentAdminFilter === 'all'
             ? materials
             : materials.filter(m => m.topic === contentAdminFilter);
@@ -1179,6 +1275,11 @@
                 <p class="page-subtitle">Repositório administrativo para aulas, PDFs e materiais por árvore de ensino</p>
             </div>
 
+            <div class="info-box">
+                <h3>UPLOAD ATIVO · versão 2.3</h3>
+                <p>Clique em uma árvore abaixo para preparar o formulário de upload daquela área. Depois preencha título, descrição, selecione o arquivo e clique em <strong>Enviar material</strong>.</p>
+            </div>
+
             ${schemaError && isMissingContentSchema(schemaError) ? renderContentSetupNotice(schemaError) : ''}
 
             <div class="topics-grid">
@@ -1188,22 +1289,26 @@
                     <span class="topic-card-count">${contentAdminFilter === 'all' ? 'Filtro ativo' : 'Filtrar'}</span>
                 </div>
                 ${LEARNING_TOPICS.map(t => `
-                    <div class="topic-card" onclick="setContentAdminFilter('${t.slug}')">
+                    <div class="topic-card" onclick="selectContentTopicForUpload('${t.slug}')">
                         <div class="topic-card-title">${escapeHtml(t.label)}</div>
                         <div class="topic-card-meta">${counts[t.slug] || 0} material${counts[t.slug] === 1 ? '' : 'is'}</div>
                         <div class="topic-card-description">${escapeHtml(t.description)}</div>
-                        <span class="topic-card-count">${contentAdminFilter === t.slug ? 'Filtro ativo' : 'Filtrar'}</span>
+                        <span class="topic-card-count">${selectedUploadTopic === t.slug ? 'Selecionado para upload' : 'Adicionar material aqui'}</span>
                     </div>
                 `).join('')}
             </div>
 
             <form id="contentUploadForm" class="card">
-                <div class="card-title">Novo material</div>
+                <div class="card-title">Novo material em ${escapeHtml(selectedUploadTopicInfo.label)}</div>
+                <div class="info-box" style="margin-bottom:1rem;">
+                    <h3>Base de upload por árvore</h3>
+                    <p>Escolha uma árvore acima ou no campo abaixo, preencha o material e envie. O arquivo será salvo no bucket <code>${CONTENT_BUCKET}</code> e cadastrado na tabela <code>learning_materials</code>.</p>
+                </div>
                 <div class="content-form-grid">
                     <div class="form-group">
                         <label>Árvore de ensino</label>
                         <select id="contentTopic" required>
-                            ${LEARNING_TOPICS.map(t => `<option value="${t.slug}">${escapeHtml(t.label)}</option>`).join('')}
+                            ${LEARNING_TOPICS.map(t => `<option value="${t.slug}" ${selectedUploadTopic === t.slug ? 'selected' : ''}>${escapeHtml(t.label)}</option>`).join('')}
                         </select>
                     </div>
                     <div class="form-group">
@@ -1264,11 +1369,27 @@
 
         const form = document.getElementById('contentUploadForm');
         if (form) form.addEventListener('submit', handleContentUpload);
+        const topicSelect = document.getElementById('contentTopic');
+        if (topicSelect) {
+            topicSelect.addEventListener('change', (e) => {
+                selectedUploadTopic = e.target.value;
+            });
+        }
     }
 
     function setContentAdminFilter(topicSlug) {
         contentAdminFilter = topicSlug;
         renderPage();
+    }
+
+    async function selectContentTopicForUpload(topicSlug) {
+        selectedUploadTopic = topicSlug;
+        contentAdminFilter = topicSlug;
+        await renderPage();
+        const form = document.getElementById('contentUploadForm');
+        const title = document.getElementById('contentTitle');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (title) title.focus();
     }
 
     async function handleContentUpload(e) {
@@ -1289,6 +1410,7 @@
         }
 
         const topic = document.getElementById('contentTopic').value;
+        selectedUploadTopic = topic;
         const title = document.getElementById('contentTitle').value.trim();
         const description = document.getElementById('contentDescription').value.trim();
         const contentType = document.getElementById('contentType').value;
@@ -1398,7 +1520,7 @@
                 <div class="card-title">Informações da plataforma</div>
                 <div style="font-size: 13px; color: #555; line-height: 2;">
                     <div><strong>Admin atual:</strong> ${escapeHtml(currentUser.email)}</div>
-                    <div><strong>Versão:</strong> 2.2.0</div>
+                    <div><strong>Versão:</strong> 2.3.0</div>
                     <div><strong>Banco de dados:</strong> Supabase PostgreSQL</div>
                     <div><strong>Autenticação:</strong> JWT (Supabase Auth)</div>
                 </div>
